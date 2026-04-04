@@ -5,6 +5,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:notes_app/main.dart';
 import 'package:notes_app/views/screens/order.dart';
 
+// Branch test
+
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
   final localNotifications = FlutterLocalNotificationsPlugin();
@@ -109,7 +111,7 @@ class SimpleFCMService {
 void _handleNavigation(String payload) {
   log("Handling Navigation for payload: $payload");
   if (payload.isEmpty || payload == "|") return;
-  
+
   final parts = payload.split('|');
   final screen = parts[0];
   final id = parts.length > 1 ? parts[1] : null;
