@@ -1,0 +1,5 @@
+Analyzing workspace...                                          
+
+   info - Don't invoke 'print' in production code - lib\main.dart:18:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\services\notification_service.dart:116:5 - avoid_print
+

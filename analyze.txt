@@ -1,0 +1,29 @@
+Analyzing workspace...                                          
+
+  error - Target of URI doesn't exist: 'controllers/notes_controller.dart' - lib\main.dart:7:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'controllers/timer_controller.dart' - lib\main.dart:8:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'controllers/subject_controller.dart' - lib\main.dart:9:8 - uri_does_not_exist
+   info - Don't invoke 'print' in production code - lib\main.dart:22:5 - avoid_print
+  error - The function 'NotesController' isn't defined - lib\main.dart:30:27 - undefined_function
+  error - The function 'TimerController' isn't defined - lib\main.dart:37:47 - undefined_function
+  error - The function 'SubjectController' isn't defined - lib\main.dart:39:28 - undefined_function
+  error - The name 'NotesController' isn't a type, so it can't be used as a type argument - lib\main.dart:51:38 - non_type_as_type_argument
+  error - Target of URI doesn't exist: '../models/user_model.dart' - lib\services\firestore_services.dart:3:8 - uri_does_not_exist
+  error - The name 'UserModel' isn't a type, so it can't be used as a type argument - lib\services\firestore_services.dart:8:23 - non_type_as_type_argument
+  error - The name 'UserModel' isn't a type, so it can't be used as a type argument - lib\services\firestore_services.dart:9:45 - non_type_as_type_argument
+  error - Undefined name 'UserModel' - lib\services\firestore_services.dart:10:45 - undefined_identifier
+  error - The method 'toFireStore' can't be unconditionally invoked because the receiver can be 'null' - lib\services\firestore_services.dart:11:44 - unchecked_use_of_nullable_value
+  error - Undefined class 'UserModel' - lib\services\firestore_services.dart:15:37 - undefined_class
+  error - Undefined class 'UserModel' - lib\services\firestore_services.dart:19:35 - undefined_class
+  error - Undefined class 'UserModel' - lib\services\firestore_services.dart:27:38 - undefined_class
+  error - The name 'UserModel' isn't a type, so it can't be used as a type argument - lib\services\firestore_services.dart:44:15 - non_type_as_type_argument
+  error - Undefined class 'UserModel' - lib\services\firestore_services.dart:57:33 - undefined_class
+   info - Don't invoke 'print' in production code - lib\services\notification_service.dart:116:5 - avoid_print
+  error - Target of URI doesn't exist: 'package:notes_app/views/screens/home_screen.dart' - lib\views\screens\auth_gate.dart:5:8 - uri_does_not_exist
+  error - The name 'HomeScreen' isn't a class - lib\views\screens\auth_gate.dart:14:20 - creation_with_non_type
+  error - The name 'HomeScreen' isn't a class - lib\views\screens\auth_gate.dart:22:26 - creation_with_non_type
+  error - The name 'HomeScreen' isn't a class - lib\views\screens\auth_gate.dart:54:24 - creation_with_non_type
+   info - The imported package 'workspace' isn't a dependency of the importing package - test\widget_test.dart:11:8 - depend_on_referenced_packages
+  error - Target of URI doesn't exist: 'package:workspace/main.dart' - test\widget_test.dart:11:8 - uri_does_not_exist
+  error - The name 'MyApp' isn't a class - test\widget_test.dart:16:35 - creation_with_non_type
+

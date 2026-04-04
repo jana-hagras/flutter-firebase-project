@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "194958175295",
+    "project_id": "my-workspace-app-26",
+    "storage_bucket": "my-workspace-app-26.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194958175295:android:e62722473900f50cc99c8a",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnQvMYFO-X5unp7Rv9r3smsec_uGi1zw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194958175295:android:fa3da60149194a81c99c8a",
+        "android_client_info": {
+          "package_name": "com.example.workspace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnQvMYFO-X5unp7Rv9r3smsec_uGi1zw8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

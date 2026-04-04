@@ -1,0 +1,42 @@
+name: notes_app
+description: Flutter ToDo/Notes app with dark & light themes, categories, and local JSON storage.
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.0.5
+  shimmer: ^3.0.0
+  carousel_slider: ^5.1.2
+  intl: ^0.20.2
+  flutter_launcher_icons: ^0.14.4
+  path_provider: ^2.0.15
+  shared_preferences: ^2.3.3
+  firebase_core: ^4.6.0
+  firebase_auth: ^6.3.0
+  firebase_ui_auth: ^3.0.1
+  firebase_ui_oauth_google: ^2.0.1
+  cloud_firestore: ^6.2.0
+  firebase_storage: ^13.2.0
+  firebase_messaging: ^16.0.0
+  flutter_local_notifications: ^21.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/app_icon.png
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/app_icon.png"
