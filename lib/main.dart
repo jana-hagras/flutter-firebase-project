@@ -18,7 +18,6 @@ void main() async {
 
     // Initialize FCM Service
     await SimpleFCMService().init();
-    
   } catch (e) {
     debugPrint(
         "Firebase init failed or already initialized. Safe to continue offline.");
@@ -35,7 +34,7 @@ class NotesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey, // REQUIRED for notification navigation to work
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'My WorkSpace',
       themeMode: ThemeMode.dark,

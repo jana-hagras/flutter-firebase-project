@@ -8,6 +8,7 @@ import '../../services/firestore_services.dart';
 import '../../theme/app_theme.dart';
 import '../../main.dart';
 import 'order.dart';
+import 'services_screen.dart';
 
 class FirestoreDemoScreen extends StatefulWidget {
   const FirestoreDemoScreen({super.key});
@@ -24,11 +25,13 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
   final TextEditingController stateController = TextEditingController();
   final TextEditingController zipController = TextEditingController();
   final TextEditingController filterController = TextEditingController();
+  final TextEditingController tagsController = TextEditingController();
 
   final FirestoreServices service = FirestoreServices();
 
   int _selectedIndex = 0;
   String? _fcmToken;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -50,6 +53,7 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
     stateController.dispose();
     zipController.dispose();
     filterController.dispose();
+    tagsController.dispose();
     super.dispose();
   }
 
@@ -70,6 +74,13 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () => navigatorKey.currentState?.push(
+              MaterialPageRoute(builder: (_) => const ServicesScreen()),
+            ),
+            tooltip: 'Services',
+          ),
           IconButton(
             icon: const Icon(Icons.logout_rounded),
             onPressed: () async {
@@ -199,6 +210,7 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
                 _buildField(nameController, "Full Name", Icons.badge_outlined),
                 _buildField(ageController, "Age", Icons.calendar_month_outlined,
                     isNumeric: true),
+                _buildField(tagsController, "Tags", Icons.tag_outlined),
                 const Divider(height: 48, color: Colors.white12),
                 _buildSectionHeader(
                     accent, "LOCATION DATA", Icons.explore_outlined),
@@ -227,29 +239,34 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
                         label: "ADD (NORMAL)",
                         icon: Icons.add_task_rounded,
                         color: accent,
-                        onPressed: () => _performAction(ActionType.add)),
-                    _buildActionButton(
-                        label: "ADD W/ TIMESTAMP",
-                        icon: Icons.history_rounded,
-                        color: Colors.orangeAccent,
-                        onPressed: () =>
-                            _performAction(ActionType.addTimestamp)),
+                        onPressed: _isLoading
+                            ? null
+                            : () => _performAction(ActionType.add)),
+                    // _buildActionButton(
+                    //     label: "ADD W/ TIMESTAMP",
+                    //     icon: Icons.history_rounded,
+                    //     color: Colors.orangeAccent,
+                    //     onPressed: () =>
+                    //         _performAction(ActionType.addTimestamp)),
                     _buildActionButton(
                         label: "SET FIXED ID",
                         icon: Icons.push_pin_rounded,
                         color: Colors.purpleAccent,
-                        onPressed: () => _performAction(ActionType.setFixed)),
+                        onPressed: _isLoading
+                            ? null
+                            : () => _performAction(ActionType.setFixed)),
                     _buildActionButton(
                         label: "UPDATE PARTIAL",
                         icon: Icons.published_with_changes_rounded,
                         color: Colors.blueAccent,
-                        onPressed: () =>
-                            _performAction(ActionType.updatePartial)),
-                    _buildActionButton(
-                        label: "TEST ORDER PAGE",
-                        icon: Icons.shopping_cart_checkout_rounded,
-                        color: Colors.redAccent,
-                        onPressed: () => _performAction(ActionType.order)),
+                        onPressed: _isLoading
+                            ? null
+                            : () => _performAction(ActionType.updatePartial)),
+                    // _buildActionButton(
+                    //     label: "TEST ORDER PAGE",
+                    //     icon: Icons.shopping_cart_checkout_rounded,
+                    //     color: Colors.redAccent,
+                    //     onPressed: () => _performAction(ActionType.order)),
                   ],
                 ),
               ],
@@ -279,7 +296,7 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
       {required String label,
       required IconData icon,
       required Color color,
-      required VoidCallback onPressed}) {
+      required VoidCallback? onPressed}) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -288,18 +305,33 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: onPressed == null
+                ? color.withValues(alpha: 0.05)
+                : color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, size: 18, color: color),
+              if (_isLoading && onPressed != null)
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                Icon(icon,
+                    size: 18,
+                    color: onPressed == null
+                        ? color.withValues(alpha: 0.5)
+                        : color),
               const SizedBox(width: 10),
               Text(label,
                   style: TextStyle(
-                      color: color,
+                      color: onPressed == null
+                          ? color.withValues(alpha: 0.5)
+                          : color,
                       fontWeight: FontWeight.bold,
                       fontSize: 11,
                       letterSpacing: 0.5)),
@@ -362,15 +394,22 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
           child: StreamBuilder<List<UserModel>>(
             stream: service.streamUsers(),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting)
+              if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
-              final users = snapshot.data
-                      ?.where((u) =>
-                          u.name
-                              ?.toLowerCase()
-                              .contains(filterController.text.toLowerCase()) ??
-                          false)
-                      .toList() ??
+              }
+              final users = snapshot.data?.where((u) {
+                    final query = filterController.text.toLowerCase();
+                    if (query.isEmpty) return true;
+                    return (u.name?.toLowerCase().contains(query) ?? false) ||
+                        (u.age?.toString().contains(query) ?? false) ||
+                        (u.tags?.any(
+                                (tag) => tag.toLowerCase().contains(query)) ??
+                            false) ||
+                        (u.address?['city']?.toLowerCase().contains(query) ??
+                            false) ||
+                        (u.address?['state']?.toLowerCase().contains(query) ??
+                            false);
+                  }).toList() ??
                   [];
               if (users.isEmpty) return _buildEmptyState();
 
@@ -471,13 +510,40 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
                                   color: accent,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold)),
+                          const SizedBox(width: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: accent.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  onPressed: () =>
+                                      service.decrementAge(user.id!),
+                                  icon: Icon(Icons.remove,
+                                      size: 16, color: accent),
+                                  padding: const EdgeInsets.all(4),
+                                  constraints: const BoxConstraints(),
+                                ),
+                                IconButton(
+                                  onPressed: () =>
+                                      service.incrementAge(user.id!),
+                                  icon:
+                                      Icon(Icons.add, size: 16, color: accent),
+                                  padding: const EdgeInsets.all(4),
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
                 IconButton(
-                  onPressed: () => service.deleteUser(user.id!),
+                  onPressed: () => _confirmDelete(user),
                   icon: const Icon(Icons.delete_outline_rounded,
                       color: Colors.redAccent, size: 22),
                   style: IconButton.styleFrom(
@@ -512,6 +578,40 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
                 ),
               ),
             ],
+            if (user.tags != null && user.tags!.isNotEmpty) ...[
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    color: Colors.white10,
+                    borderRadius: BorderRadius.circular(16)),
+                child: Row(
+                  children: [
+                    const Icon(Icons.tag_rounded,
+                        size: 16, color: Colors.white38),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: user.tags!
+                            .map((tag) => Chip(
+                                  label: Text(tag,
+                                      style: const TextStyle(
+                                          fontSize: 10, color: Colors.white)),
+                                  backgroundColor:
+                                      accent.withValues(alpha: 0.2),
+                                  padding: EdgeInsets.zero,
+                                  materialTapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -523,19 +623,87 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inbox_rounded,
-              size: 64, color: Colors.white.withValues(alpha: 0.1)),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.inbox_rounded,
+                size: 48, color: Colors.white.withValues(alpha: 0.3)),
+          ),
+          const SizedBox(height: 24),
           const Text("Workspace is empty",
               style: TextStyle(
-                  color: Colors.white24, fontWeight: FontWeight.bold)),
+                  color: Colors.white24,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18)),
+          const SizedBox(height: 8),
+          const Text("Add your first user to get started",
+              style: TextStyle(color: Colors.white12, fontSize: 14)),
+          const SizedBox(height: 32),
+          ElevatedButton.icon(
+            onPressed: () => setState(() => _selectedIndex = 0),
+            icon: const Icon(Icons.add),
+            label: const Text("Add User"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  AppTheme.accentColors[0].color.withValues(alpha: 0.2),
+              foregroundColor: AppTheme.accentColors[0].color,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(UserModel user) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF131720),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Delete User", style: TextStyle(color: Colors.white)),
+        content: Text(
+            "Are you sure you want to delete ${user.name ?? 'this user'}?",
+            style: const TextStyle(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child:
+                const Text("Cancel", style: TextStyle(color: Colors.white60)),
+          ),
+          TextButton(
+            onPressed: () {
+              service.deleteUser(user.id!);
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(const SnackBar(content: Text("User deleted")));
+            },
+            child:
+                const Text("Delete", style: TextStyle(color: Colors.redAccent)),
+          ),
         ],
       ),
     );
   }
 
   void _performAction(ActionType type) {
-    if (nameController.text.isEmpty && type == ActionType.add) return;
+    if (type == ActionType.add) {
+      if (nameController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text("Name is required")));
+        return;
+      }
+      final age = int.tryParse(ageController.text);
+      if (age == null || age < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Please enter a valid age")));
+        return;
+      }
+    }
 
     if (type == ActionType.order) {
       navigatorKey.currentState?.push(MaterialPageRoute(
@@ -543,6 +711,8 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
       ));
       return;
     }
+
+    setState(() => _isLoading = true);
 
     final user = UserModel(
       name: nameController.text.trim(),
@@ -553,6 +723,9 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
         'state': stateController.text.trim(),
         'zip': zipController.text.trim(),
       },
+      tags: tagsController.text.isNotEmpty
+          ? tagsController.text.split(',').map((e) => e.trim()).toList()
+          : null,
     );
 
     Future<void> future;
@@ -570,14 +743,29 @@ class _FirestoreDemoScreenState extends State<FirestoreDemoScreen> {
         future = service.updatePartial("fixed_id", {"age": user.age});
         break;
       case ActionType.order:
-        // TODO: Handle this case.
         throw UnimplementedError();
     }
 
     future.then((_) {
       if (!mounted) return;
+      setState(() => _isLoading = false);
+      // Clear controllers after successful add
+      if (type == ActionType.add) {
+        nameController.clear();
+        ageController.clear();
+        streetController.clear();
+        cityController.clear();
+        stateController.clear();
+        zipController.clear();
+        tagsController.clear();
+      }
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("${type.name.toUpperCase()} Complete")));
+    }).catchError((error) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Error: ${error.toString()}")));
     });
   }
 }

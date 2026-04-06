@@ -69,6 +69,13 @@ class FirestoreServices {
         .update({"age": FieldValue.increment(1)});
   }
 
+  Future<void> decrementAge(String id) async {
+    await _db
+        .collection('users')
+        .doc(id)
+        .update({"age": FieldValue.increment(-1)});
+  }
+
   Future<void> deleteField(String id, String field) async {
     await _db.collection('users').doc(id).update({field: FieldValue.delete()});
   }
