@@ -76,12 +76,6 @@ flutter build web
 
 ---
 
-## 🙌 Contributing
-
-Contributions and improvements are welcome! Feel free to open issues or submit pull requests.
-
----
-
 ## 📬 Contact
 
 For questions or help, add a short note here about the project owner or repo maintainers.
