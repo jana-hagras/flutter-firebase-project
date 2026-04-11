@@ -73,9 +73,3 @@ flutter build web
 
 - Make sure your Firebase configuration files are present in the platform directories.
 - Keep your dependencies up to date by periodically running `flutter pub upgrade`.
-
----
-
-## 📬 Contact
-
-For questions or help, add a short note here about the project owner or repo maintainers.
